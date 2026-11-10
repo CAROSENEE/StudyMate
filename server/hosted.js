@@ -12,6 +12,7 @@ const ROOT = path.resolve(__dirname, '..');
 const PORT = Number(process.env.PORT || 3000);
 const URL = String(process.env.SUPABASE_URL || '').replace(/\/+$/, '');
 const KEY = process.env.SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_ANON_KEY || '';
+const AUTH_REDIRECT_URL = String(process.env.AUTH_REDIRECT_URL || 'https://studymate-api-63in.onrender.com').replace(/\/+$/, '');
 const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: process.env.DATABASE_SSL === 'false' ? false : { rejectUnauthorized: false }, max: Number(process.env.DB_POOL_SIZE || 5), connectionTimeoutMillis: 15000 });
 const app = express();
 const sockets = new Set();
@@ -73,7 +74,7 @@ app.post('/api/auth/register', registerLimit, async (req, res, next) => {
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return fail(res, 400, 'Enter a valid email address.');
   if (password.length < 8 || password.length > 100) return fail(res, 400, 'Password must be 8–100 characters.');
   try {
-    const auth = await authCall('signup', null, { email, password, data: { name, department, batch } });
+    const auth = await authCall('signup?redirect_to=' + encodeURIComponent(AUTH_REDIRECT_URL), null, { email, password, data: { name, department, batch } });
     const profile = auth.user?.id ? await profileByAuthId(auth.user.id) : null;
     if (profile) await audit(profile.id, 'account_registered');
     if (!auth.access_token || !profile) return res.status(202).json({ confirmationRequired: true, email, message: 'Account created. Confirm your email, then sign in.' });
@@ -82,6 +83,18 @@ app.post('/api/auth/register', registerLimit, async (req, res, next) => {
     if ([409, 422].includes(e.status)) return fail(res, 409, 'An account with this email may already exist.');
     if (e.status === 400) return fail(res, 400, 'Supabase could not create this account. Check the password rules and Supabase Auth settings.');
     if (e.status === 429) return fail(res, 429, 'Too many attempts. Please try again later.');
+    next(e);
+  }
+});
+app.post('/api/auth/resend-confirmation', authLimit, async (req, res, next) => {
+  const email = clean(req.body?.email, 254).toLowerCase();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return fail(res, 400, 'Enter a valid email address.');
+  try {
+    await authCall('resend?redirect_to=' + encodeURIComponent(AUTH_REDIRECT_URL), null, { email, type: 'signup' });
+    res.json({ ok: true, message: 'If this account needs confirmation, a new email has been sent.' });
+  } catch (e) {
+    if (e.status === 429) return fail(res, 429, 'Please wait before requesting another confirmation email.');
+    if ([400, 404, 422].includes(e.status)) return fail(res, 400, 'Could not resend the email. Check that this account was registered and is still unconfirmed.');
     next(e);
   }
 });
