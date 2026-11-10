@@ -16,6 +16,8 @@ The planned hosted architecture is:
 
 The Supabase and Render setup is a migration plan, not yet configured in this repository. Until that work is completed, follow the local SQLite instructions below. Neon is not part of the selected plan.
 
+A first PostgreSQL schema draft is available at supabase/migrations/202611110001_initial_schema.sql. It has not been applied to a Supabase project yet, and the running API still uses SQLite and custom authentication.
+
 ## User roles and features
 
 ### Student
@@ -83,3 +85,4 @@ The `.gitignore` excludes `.env`, local database data, build caches, and APK fil
 - No public API URL or hosted database is configured yet.
 - Multi-device login, friend requests, messaging, and database-backed coursework require the API server to be available.
 - Free hosting services may sleep, pause, or enforce usage limits. The project is currently intended for development and academic demonstration, not production use.
+
