@@ -1,0 +1,16 @@
+services:
+  studymate:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: 3000
+      DATA_DIR: /app/data
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@studymate.local}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?Set ADMIN_PASSWORD in .env before starting production mode}
+      CORS_ORIGINS: ${CORS_ORIGINS:-}
+    volumes:
+      - ./data:/app/data

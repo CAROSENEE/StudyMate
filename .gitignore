@@ -1,0 +1,8 @@
+node_modules/
+.env
+data/
+.apk-build/
+android/.gradle/
+android/build/
+android/app/build/
+*.apk
