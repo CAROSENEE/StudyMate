@@ -1,49 +1,140 @@
 ﻿# Smart StudyMate
 
-Smart StudyMate is a mobile-first student assistant for study planning, course activities, peer communication, and academic progress. The project includes a responsive web frontend and an Android app built with Capacitor.
+Smart StudyMate is a mobile-first study assistant for student planning, course materials, coursework, quizzes, peer communication, and academic progress. It has a responsive web app, a Node.js API, Supabase Auth and PostgreSQL, and an Android APK built with Capacitor.
 
-## Project status
+## Current project status
 
-The codebase has a Node.js and Express API with WebSocket messaging. It supports a local SQLite demo mode and a hosted mode that uses Supabase Auth and PostgreSQL. The Supabase hosted API is deployed on Render and uses Supabase Auth and PostgreSQL. The initial schema is applied; new migrations must be pushed to the linked Supabase project before deploying code that depends on them.
+The hosted backend and database are configured. The code is in GitHub, Render hosts the API, and Supabase provides authentication and PostgreSQL storage. The initial database schema and live-presence migration have been applied to the linked production Supabase project.
 
-The hosted architecture is:
+- **GitHub repository:** [CAROSENEE/StudyMate](https://github.com/CAROSENEE/StudyMate)
+- **StudyMate web app and API:** <https://studymate-api-63in.onrender.com/>
+- **API health endpoint:** <https://studymate-api-63in.onrender.com/api/health>
+- **Supabase project reference:** `vzwrzrfevzawyppzfbat`
+- **Android APK:** `StudyMate.apk` in the project root (generated locally; excluded from GitHub)
 
-- **GitHub** for source-code version control
-- **Supabase Auth** for registration, sign-in, and user sessions
-- **Supabase PostgreSQL** for application data
-- **Render** (or another Node.js host) for the Express API and WebSocket service
-- **Capacitor** for packaging the frontend as an Android APK
+The Render free service may sleep when idle. Its first request after sleeping can take longer while the service wakes.
 
-Neon is not part of the selected plan. Keep Supabase database credentials in local `.env` or the hosting provider's environment settings; do not put them in the APK, frontend, or GitHub.
+## Technology and architecture
 
-The initial PostgreSQL schema is tracked at `supabase/migrations/202611110001_initial_schema.sql` and has been applied to the Smart StudyMate Supabase project. `server/index.js` selects hosted mode when `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, and `DATABASE_URL` are all configured; otherwise development uses the local SQLite demo API. Production refuses to start without the hosted configuration.
+- **Frontend:** HTML, CSS, and JavaScript; mobile-first responsive layout and PWA support
+- **Backend:** Node.js and Express REST API; WebSocket connection for friend messaging
+- **Authentication:** Supabase Auth, including email confirmation
+- **Database:** Supabase PostgreSQL
+- **Hosting:** Render web service
+- **Source control:** GitHub
+- **Android packaging:** Capacitor and Gradle
+- **Local demo mode:** SQLite when Supabase environment variables are not configured
 
-## User roles and features
+Neon is not used in the current architecture. Never commit `.env` files, database passwords, Supabase private/service-role keys, or other credentials. The frontend and APK use only the public Supabase URL and publishable key where applicable; the database connection string remains in the backend environment.
 
-### Student
+## Completed features
 
-- Register and sign in
-- View course materials, assignments, quizzes, and announcements
-- Submit assignment responses and take quizzes
+### Students
+
+- Register with name, email, department, batch, and password
+- Confirm email and sign in
+- View study materials, assignments, quizzes, and announcements
+- Submit assignment responses and quiz attempts
+- Send and respond to friend requests
+- Message accepted friends
 - Use study-planning, routine, focus, and progress screens
-- Find other students, send or accept friend requests, and message friends
 
-### Manager
+### Managers
 
 - Publish course materials, assignments, quizzes, and announcements
-- View student progress summaries and coursework activity
+- View student coursework and progress summaries
 
-### Admin
+### Administrators
 
-- Review registered student accounts and system activity
-- See which students and managers have the app open, their current broad app section, and their last heartbeat (updates every 15 seconds)
-- View dashboard statistics and reports
-- Manage available system settings
-- Access course-management screens where permitted
+- Review student accounts, registrations, and system activity
+- View dashboard statistics and account reports
+- Manage system settings
+- View connected students and managers in the live-presence panel
 
-Some study-planning screens and the offline role preview use sample data. Offline preview changes are not synchronized with the backend.
+### Account and messaging behavior
 
-## Run locally (SQLite demo mode)
+- New public registrations receive the `student` role by default.
+- Email confirmation redirects to the hosted StudyMate URL. Users who do not receive an email can request a new confirmation email from the login page.
+- Messages are available only between accepted friends. The API uses authenticated user sessions and checks friend relationships before returning or sending messages.
+- Admin activity records event types and message counts; it does not include private message text.
+
+## Live user presence
+
+The Admin dashboard displays students and managers whose app sent a heartbeat within the last 90 seconds. The app sends a heartbeat every 30 seconds; the Admin dashboard refreshes the list every 15 seconds. It displays the user's name, role, broad app section, and recent heartbeat time.
+
+Presence indicates that an app session recently connected. It does not prove that a person is looking at or interacting with the app at that exact moment. Presence stores only account ID, a session ID, a coarse section label, and heartbeat time. It does not record private message contents, typed input, IP addresses, or device details. Admin access is required to view the list.
+
+The feature is implemented by migration `supabase/migrations/202611110002_live_presence.sql`, which adds the `public.user_presence` table with Row Level Security enabled and no client-facing policies. The Express API writes presence and returns the live list only to Admin users.
+
+## Supabase setup
+
+The Supabase project is linked to this repository through the Supabase CLI. Database migrations are stored under `supabase/migrations/`:
+
+- `202611110001_initial_schema.sql` creates profiles, friendship and messaging tables, coursework tables, settings, and audit logs.
+- `202611110002_live_presence.sql` adds the short-lived app-presence table.
+
+Both migrations have been applied to the linked production project. To apply future migrations from the project folder:
+
+```powershell
+npx supabase login
+npx supabase link --project-ref vzwrzrfevzawyppzfbat
+npx supabase db push --remote
+```
+
+If the CLI is already logged in and the project is linked, the last command is sufficient. The `--remote` flag applies migrations to the linked Supabase project rather than trying to connect to a local Docker database.
+
+### Authentication URL settings
+
+Supabase **Authentication > URL Configuration** is configured for the hosted app:
+
+- **Site URL:** `https://studymate-api-63in.onrender.com`
+- **Redirect URL allowlist:** includes `https://studymate-api-63in.onrender.com`
+
+The backend uses `AUTH_REDIRECT_URL` for signup confirmation and resend-confirmation links. Confirmation links can expire; request a new email from the app if an older link no longer works.
+
+### Roles
+
+Public registration can only create Student accounts. To grant the first Admin or Manager role, first register and verify the account, then run the appropriate statement in the Supabase SQL Editor as the project owner. Replace the example email with the verified account email:
+
+```sql
+update public.profiles set role = 'admin' where email = 'your-admin-email@example.com';
+update public.profiles set role = 'manager' where email = 'your-manager-email@example.com';
+```
+
+There is no public API for promoting roles. Keep the number of Admin accounts limited to trusted project operators.
+
+## Render deployment
+
+The Render Blueprint is defined in `render.yaml`. It creates the `studymate-api` Node.js web service, runs `npm ci` and `npm start`, and uses `/api/health` as the health check. Render is connected to the GitHub repository and deploys changes from the `main` branch.
+
+The Render environment contains these settings:
+
+- `NODE_ENV=production`
+- `SUPABASE_URL` - Supabase project URL
+- `SUPABASE_PUBLISHABLE_KEY` - Supabase public publishable key
+- `DATABASE_URL` - PostgreSQL connection string, including the private database password
+- `AUTH_REDIRECT_URL=https://studymate-api-63in.onrender.com`
+
+Keep the value of `DATABASE_URL` private. If its password contains URL-reserved characters such as `#`, percent-encode those characters in the connection string. Do not put this connection string in source files or share it publicly.
+
+The health endpoint should report `ok: true` and `database: connected` when the hosted API is running. A free Render instance can sleep while idle, so the first request may be delayed.
+
+## GitHub workflow for future changes
+
+From PowerShell in the project folder, commit and push code changes to `main`:
+
+```powershell
+cd D:\CAROSINE\StudyMate
+git add .
+git commit -m "Describe the change"
+git push origin main
+```
+
+Render deploys the new version from GitHub. Before using `git add .`, review `git status` and make sure `.env`, database files, passwords, and other private data are not included. The repository `.gitignore` excludes `.env`, SQLite data, build caches, and APK files.
+
+When a code change adds or modifies a database migration, push the migration to Supabase with `npx supabase db push --remote` before relying on it in the deployed API.
+
+## Run locally
 
 Requirements: Node.js 24 or later.
 
@@ -52,57 +143,24 @@ npm install
 npm start
 ```
 
-Open `http://localhost:3000`. The local database is created at `data/studymate.sqlite`. The development server seeds demo Admin and Manager accounts on first start. For local credentials, see `.env.example` and keep demo passwords for development only.
+Open <http://localhost:3000>. Without the Supabase environment variables, the server runs its SQLite demo mode and stores data in `data/studymate.sqlite`. Local demo accounts are configured through `.env.example`; use them only for local development. Offline role previews use sample data and do not sync with the hosted database.
 
-To customize local server settings, copy `.env.example` to `.env` and edit the values. Never commit `.env`, database files, service keys, or passwords to GitHub.
-
-## Supabase hosted mode
-
-Set `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, and `DATABASE_URL` in a private `.env` file for local hosted-mode development, or in the API host's environment settings for deployment. `DATABASE_URL` is the PostgreSQL connection string from the Supabase project; keep its password private. Set `CORS_ORIGINS` to the exact web origins when the frontend and API are hosted separately. A public signup always creates a Student profile.
-
-To grant the first Admin or Manager role, first create and verify that account through StudyMate, then promote the matching profile in the Supabase SQL Editor as the project owner:
-
-```sql
-update public.profiles set role = 'admin' where email = 'your-admin-email@example.com';
-update public.profiles set role = 'manager' where email = 'your-manager-email@example.com';
-```
-
-Change the example addresses to the verified account emails. There is no public endpoint for promoting roles.
-
-## Admin live presence
-
-The admin dashboard shows students and managers connected within the last 90 seconds. The app sends a heartbeat every 30 seconds and the dashboard refreshes every 15 seconds. This indicates a recent app connection, not a person's exact actions or attention. It stores only account ID, an app section label, session ID, and heartbeat time; private message text, typed content, IP address, and device details are not tracked. Presence is available in hosted Supabase mode after applying `supabase/migrations/202611110002_live_presence.sql`.
-
-Apply pending Supabase migrations from the project folder after linking the CLI to the correct project:
-
-```powershell
-npx supabase db push
-```
+For local hosted-mode development, create a private `.env` file with `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, and `DATABASE_URL`. Never commit that file.
 
 ## Android APK
 
-Build the Android debug APK from the project folder:
+Build the current debug APK from the project folder:
 
 ```powershell
 npm run android:apk
 ```
 
-The build script synchronizes the latest frontend files and creates `StudyMate.apk` in the project folder. The APK defaults to the deployed StudyMate HTTPS API. You can change the URL in the app's **Server** setting if you use another server. The phone's `localhost` address refers to the phone itself, not your computer.
+The script syncs the frontend into the Capacitor Android project, builds the APK, and writes `StudyMate.apk` in the project root. The current APK defaults to the hosted StudyMate HTTPS API. You can change the API address from the app's **Server** setting. A phone's `localhost` means the phone itself, not your computer.
 
-## Next deployment step
+After changing the frontend or API address, rebuild the APK and install the new file. A debug APK is suitable for project demonstration and testing; it is not a Play Store release build.
 
-To deploy the hosted API:
+## Important limitations
 
-1. Add the Supabase URL, publishable key, and PostgreSQL connection string to the API host's private environment settings.
-2. Deploy this Node.js service with `npm start` and verify `/api/health` reports `database: connected`.
-3. Set the app's **Server** address to the deployed HTTPS URL, then rebuild the APK if needed.
-
-## Repository safety
-
-The `.gitignore` excludes `.env`, local database data, build caches, and APK files. Review `git status` before pushing and confirm that no credentials or private data are staged.
-
-## Current limitations
-
-- Multi-device login, friend requests, messaging, live presence, and database-backed coursework require the API server and current database migrations to be available.
-- Free hosting services may sleep, pause, or enforce usage limits. The project is currently intended for development and academic demonstration, not production use.
-
+- Some planning screens and offline role previews still use sample data rather than database-backed records.
+- Live presence reports a recent app connection and broad screen section, not a complete click-by-click history.
+- Free hosting and database plans have usage, sleep, and availability limits. This setup is intended for academic demonstration and development, not production-scale use.
