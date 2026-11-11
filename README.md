@@ -4,9 +4,9 @@ Smart StudyMate is a mobile-first student assistant for study planning, course a
 
 ## Project status
 
-The codebase has a Node.js and Express API with WebSocket messaging. It supports a local SQLite demo mode and a hosted mode that uses Supabase Auth and PostgreSQL. The Supabase database schema has been applied, but the hosted API has not yet been configured with credentials or deployed.
+The codebase has a Node.js and Express API with WebSocket messaging. It supports a local SQLite demo mode and a hosted mode that uses Supabase Auth and PostgreSQL. The Supabase hosted API is deployed on Render and uses Supabase Auth and PostgreSQL. The initial schema is applied; new migrations must be pushed to the linked Supabase project before deploying code that depends on them.
 
-The planned hosted architecture is:
+The hosted architecture is:
 
 - **GitHub** for source-code version control
 - **Supabase Auth** for registration, sign-in, and user sessions
@@ -36,6 +36,7 @@ The initial PostgreSQL schema is tracked at `supabase/migrations/202611110001_in
 ### Admin
 
 - Review registered student accounts and system activity
+- See which students and managers have the app open, their current broad app section, and their last heartbeat (updates every 15 seconds)
 - View dashboard statistics and reports
 - Manage available system settings
 - Access course-management screens where permitted
@@ -68,6 +69,16 @@ update public.profiles set role = 'manager' where email = 'your-manager-email@ex
 
 Change the example addresses to the verified account emails. There is no public endpoint for promoting roles.
 
+## Admin live presence
+
+The admin dashboard shows students and managers connected within the last 90 seconds. The app sends a heartbeat every 30 seconds and the dashboard refreshes every 15 seconds. This indicates a recent app connection, not a person's exact actions or attention. It stores only account ID, an app section label, session ID, and heartbeat time; private message text, typed content, IP address, and device details are not tracked. Presence is available in hosted Supabase mode after applying `supabase/migrations/202611110002_live_presence.sql`.
+
+Apply pending Supabase migrations from the project folder after linking the CLI to the correct project:
+
+```powershell
+npx supabase db push
+```
+
 ## Android APK
 
 Build the Android debug APK from the project folder:
@@ -76,7 +87,7 @@ Build the Android debug APK from the project folder:
 npm run android:apk
 ```
 
-The build script synchronizes the latest frontend files and creates `StudyMate.apk` in the project folder. To use online accounts and shared data on a phone, the API must be deployed to a public HTTPS URL and that URL must be entered in the app's **Server** setting. The phone's `localhost` address refers to the phone itself, not your computer.
+The build script synchronizes the latest frontend files and creates `StudyMate.apk` in the project folder. The APK defaults to the deployed StudyMate HTTPS API. You can change the URL in the app's **Server** setting if you use another server. The phone's `localhost` address refers to the phone itself, not your computer.
 
 ## Next deployment step
 
@@ -92,7 +103,6 @@ The `.gitignore` excludes `.env`, local database data, build caches, and APK fil
 
 ## Current limitations
 
-- No public API URL is deployed yet, so the app is not online across devices until the Express API is hosted.
-- Multi-device login, friend requests, messaging, and database-backed coursework require the API server to be available.
+- Multi-device login, friend requests, messaging, live presence, and database-backed coursework require the API server and current database migrations to be available.
 - Free hosting services may sleep, pause, or enforce usage limits. The project is currently intended for development and academic demonstration, not production use.
 
