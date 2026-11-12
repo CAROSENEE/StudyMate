@@ -46,7 +46,8 @@ Neon is not used in the current architecture. Never commit `.env` files, databas
 
 ### Administrators
 
-- Review student accounts, registrations, and system activity
+- Review accounts grouped by role, registrations, and system activity
+- Promote verified Student accounts to Manager and return Manager accounts to Student
 - View dashboard statistics and account reports
 - Manage system settings
 - View connected students and managers in the live-presence panel
@@ -101,7 +102,13 @@ update public.profiles set role = 'admin' where email = 'your-admin-email@exampl
 update public.profiles set role = 'manager' where email = 'your-manager-email@example.com';
 ```
 
-There is no public API for promoting roles. Keep the number of Admin accounts limited to trusted project operators.
+Public signup always creates Students. This prevents an unauthenticated visitor from registering as an Admin. To set up the first Admin, create and email-verify an account, then run an owner-only role update in Supabase SQL Editor:
+
+```sql
+update public.profiles set role = 'admin' where email = 'your-admin-email@example.com';
+```
+
+After the first Admin signs in, create and verify another account through the normal signup form. In **Admin > Accounts by role**, use **Make Manager** on that account. Admins can also return Managers to Student. The web API does not allow changing a profile to Admin, so keep Admin assignment restricted to the Supabase project owner. The Admin list and role change require the newest Render deploy.
 
 ## Render deployment
 
