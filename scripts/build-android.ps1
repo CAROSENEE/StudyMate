@@ -20,6 +20,9 @@ try {
     $webIcons = Join-Path $projectRoot 'www\icons'
     New-Item -ItemType Directory -Path $webIcons -Force | Out-Null
     Get-ChildItem -LiteralPath (Join-Path $projectRoot 'icons') | Copy-Item -Destination $webIcons -Recurse -Force
+    $webBrand = Join-Path $projectRoot 'www\assets\brand'
+    New-Item -ItemType Directory -Path $webBrand -Force | Out-Null
+    Copy-Item -LiteralPath (Join-Path $projectRoot 'assets\brand\smart_studymate_logo_transparent.png') -Destination $webBrand -Force
     & npx.cmd cap sync android
     if ($LASTEXITCODE -ne 0) { throw 'Capacitor sync failed.' }
     Push-Location (Join-Path $projectRoot 'android')

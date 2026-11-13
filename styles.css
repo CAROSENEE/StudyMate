@@ -35,3 +35,5 @@ button{touch-action:manipulation;-webkit-tap-highlight-color:transparent}input,t
 .spin{width:22px;height:22px;border:3px solid #fff5;border-top-color:#fff;border-radius:50%;animation:s .7s linear infinite;margin:auto}@keyframes s{to{transform:rotate(360deg)}}
 .chat{display:flex;flex-direction:column;gap:8px}.msg{background:var(--pl);padding:8px 12px;border-radius:14px;max-width:80%;font-size:13px}.msg.me{background:var(--p);color:#fff;align-self:flex-end}
 .tile{flex:1;min-width:46%;text-align:center;cursor:pointer;font-size:13px}.tile span{display:block;font-size:22px}
+
+.login-logo{display:block;width:112px;height:104px;object-fit:contain;margin:0 auto 6px}
