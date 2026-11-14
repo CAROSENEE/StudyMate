@@ -1,0 +1,95 @@
+erDiagram
+  AUTH_USERS ||--|| PROFILES : authenticates
+  PROFILES ||--o{ FRIEND_REQUESTS : sends
+  PROFILES ||--o{ FRIEND_REQUESTS : receives
+  PROFILES ||--o{ FRIENDSHIPS : user_a
+  PROFILES ||--o{ FRIENDSHIPS : user_b
+  PROFILES ||--o{ MESSAGES : sends
+  PROFILES ||--o{ MESSAGES : receives
+  PROFILES ||--o{ AUDIT_LOGS : acts
+  PROFILES ||--o{ COURSE_MATERIALS : creates
+  PROFILES ||--o{ ASSIGNMENTS : creates
+  ASSIGNMENTS ||--o{ ASSIGNMENT_SUBMISSIONS : has
+  PROFILES ||--o{ ASSIGNMENT_SUBMISSIONS : submits
+  PROFILES ||--o{ QUIZZES : creates
+  QUIZZES ||--o{ QUIZ_ATTEMPTS : has
+  PROFILES ||--o{ QUIZ_ATTEMPTS : attempts
+  PROFILES ||--o{ STUDY_NOTIFICATIONS : creates
+  PROFILES ||--o{ STUDY_NOTIFICATIONS : receives_targeted
+  PROFILES ||--o{ USER_PRESENCE : has_sessions
+
+  AUTH_USERS {
+    uuid id PK
+  }
+  PROFILES {
+    bigint id PK
+    uuid auth_user_id FK
+    text email
+    text role
+    text institution
+    text department
+    text batch
+  }
+  FRIEND_REQUESTS {
+    bigint id PK
+    bigint sender_id FK
+    bigint receiver_id FK
+    text status
+  }
+  FRIENDSHIPS {
+    bigint user_a PK, FK
+    bigint user_b PK, FK
+  }
+  MESSAGES {
+    bigint id PK
+    bigint sender_id FK
+    bigint recipient_id FK
+    text body
+  }
+  AUDIT_LOGS {
+    bigint id PK
+    bigint actor_id FK
+    bigint target_user_id FK
+    text action
+  }
+  COURSE_MATERIALS {
+    bigint id PK
+    bigint created_by FK
+    text title
+    text course
+  }
+  ASSIGNMENTS {
+    bigint id PK
+    bigint created_by FK
+    text title
+    text course
+  }
+  ASSIGNMENT_SUBMISSIONS {
+    bigint id PK
+    bigint assignment_id FK
+    bigint student_id FK
+  }
+  QUIZZES {
+    bigint id PK
+    bigint created_by FK
+    jsonb questions
+  }
+  QUIZ_ATTEMPTS {
+    bigint id PK
+    bigint quiz_id FK
+    bigint student_id FK
+  }
+  STUDY_NOTIFICATIONS {
+    bigint id PK
+    bigint created_by FK
+    bigint target_user_id FK
+  }
+  STUDY_SETTINGS {
+    text key PK
+    text value
+  }
+  USER_PRESENCE {
+    bigint user_id PK, FK
+    uuid session_id PK
+    timestamptz last_seen_at
+  }
