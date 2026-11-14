@@ -38,16 +38,19 @@ Neon is not used in the current architecture. Never commit `.env` files, databas
 - Send and respond to friend requests
 - Message accepted friends
 - Use study-planning, routine, focus, and progress screens
+- Read the institution-wide CR Community board; only Admin-designated Class Representatives can post updates
 
 ### Managers
 
 - Publish course materials, assignments, quizzes, and announcements
 - View student coursework and progress summaries
+- Publish student-facing notifications and review course sample data from the dashboard
 
 ### Administrators
 
 - Review accounts grouped by role, registrations, and system activity
 - Promote verified Student accounts to Manager and return Manager accounts to Student
+- Designate Student accounts as Class Representatives or revoke that access
 - View dashboard statistics and account reports
 - Manage system settings
 - View connected students and managers in the live-presence panel
@@ -58,6 +61,10 @@ Neon is not used in the current architecture. Never commit `.env` files, databas
 - Email confirmation redirects to the hosted StudyMate URL. Users who do not receive an email can request a new confirmation email from the login page.
 - Messages are available only between accepted friends. The API uses authenticated user sessions and checks friend relationships before returning or sending messages.
 - Admin activity records event types and message counts; it does not include private message text.
+
+## Sample role previews
+
+The login page offers Student / CR, Manager, and Admin previews. These use fictional sample records across student routines, assignments, quizzes, materials, announcements, community posts, friends, manager coursework, progress, admin accounts, and audit activity. Preview actions are local and do not write to Supabase. The Student / CR preview can switch between CR and regular Student posting permissions.
 
 ## Live user presence
 
@@ -73,8 +80,9 @@ The Supabase project is linked to this repository through the Supabase CLI. Data
 
 - `202611110001_initial_schema.sql` creates profiles, friendship and messaging tables, coursework tables, settings, and audit logs.
 - `202611110002_live_presence.sql` adds the short-lived app-presence table.
+- `202611140001_cr_community.sql` adds Admin-controlled CR status and the CR Community message table. This migration is prepared locally and must be applied to the linked project before deploying the API changes.
 
-Both migrations have been applied to the linked production project. To apply future migrations from the project folder:
+The first two migrations have been applied to the linked production project. Apply the pending migration with `npx supabase db push --linked` after confirming the production migration prompt. To apply future migrations from the project folder:
 
 ```powershell
 npx supabase login
