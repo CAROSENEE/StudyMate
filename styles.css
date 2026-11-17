@@ -37,3 +37,19 @@ button{touch-action:manipulation;-webkit-tap-highlight-color:transparent}input,t
 .tile{flex:1;min-width:46%;text-align:center;cursor:pointer;font-size:13px}.tile span{display:block;font-size:22px}
 
 .login-logo{display:block;width:112px;height:104px;object-fit:contain;margin:0 auto 6px}
+.login-body{justify-content:center;gap:12px;padding-top:max(18px,env(safe-area-inset-top));padding-bottom:max(24px,env(safe-area-inset-bottom))}
+.login-brand{text-align:center;padding:8px 0 2px}
+.login-brand h1{color:var(--t);font-size:28px;letter-spacing:-.7px;margin:2px 0 4px}
+.login-brand small{font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--m)}
+.login-intro{background:linear-gradient(145deg,#f5f6ff,#eef2ff);border-color:#e7e9ff;padding:15px}
+.login-intro>small{color:var(--p);font-weight:700;letter-spacing:.7px;font-size:10px}
+.login-intro h2{font-size:19px;line-height:1.25;color:var(--t);margin-top:6px}
+.login-benefits{display:flex;flex-wrap:wrap;gap:6px;margin-top:11px}
+.login-benefits span{font-size:10px;color:#3730a3;background:#fff;border:1px solid #e0e7ff;padding:6px 8px;border-radius:20px}
+.login-heading{display:flex;flex-direction:column;gap:3px;margin-top:2px}
+.login-role-picker{display:flex;gap:7px}
+.login-role-picker .btn{flex:1;white-space:nowrap}
+.login-preview{padding:13px}
+.login-preview .row{flex-wrap:wrap}
+.login-footnote{text-align:center;font-size:11px}
+.field-label{font-size:12px;font-weight:650;color:var(--t)}

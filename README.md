@@ -4,7 +4,7 @@ Smart StudyMate is a mobile-first study assistant for student planning, course m
 
 ## Current project status
 
-The hosted backend and database are configured. The code is in GitHub, Render hosts the API, and Supabase provides authentication and PostgreSQL storage. The initial database schema and live-presence migration have been applied to the linked production Supabase project.
+The hosted backend and database are configured. The code is in GitHub, Render hosts the API, and Supabase provides authentication and PostgreSQL storage. The initial database schema, live-presence, CR community, sample course content, and institution-type migrations have been applied to the linked production Supabase project.
 
 - **GitHub repository:** [CAROSENEE/StudyMate](https://github.com/CAROSENEE/StudyMate)
 - **StudyMate web app and API:** <https://studymate-api-63in.onrender.com/>
@@ -31,7 +31,7 @@ Neon is not used in the current architecture. Never commit `.env` files, databas
 
 ### Students
 
-- Register with name, email, department, batch, and password
+- Register with name, email, institution type and name, department/class, batch, and password
 - Confirm email and sign in
 - View study materials, assignments, quizzes, and announcements
 - Submit assignment responses and quiz attempts
@@ -55,7 +55,9 @@ Neon is not used in the current architecture. Never commit `.env` files, databas
 - Manage system settings
 - View connected students and managers in the live-presence panel
 
-### Account and messaging behavior
+- Institution types supported: School, College, University, and Coaching Centre. Friend discovery and CR announcements are scoped to the same institution type and institution name.
+
+## Account and messaging behavior
 
 - New public registrations receive the `student` role by default.
 - Email confirmation redirects to the hosted StudyMate URL. Users who do not receive an email can request a new confirmation email from the login page.
