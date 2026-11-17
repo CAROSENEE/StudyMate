@@ -1,4 +1,4 @@
-﻿# Smart StudyMate
+# Smart StudyMate
 
 Smart StudyMate is a mobile-first study assistant for student planning, course materials, coursework, quizzes, peer communication, and academic progress. It has a responsive web app, a Node.js API, Supabase Auth and PostgreSQL, and an Android APK built with Capacitor.
 
@@ -38,6 +38,7 @@ Neon is not used in the current architecture. Never commit `.env` files, databas
 - Send and respond to friend requests
 - Message accepted friends
 - Use study-planning, routine, focus, and progress screens
+- View a local focus-session history with completed sessions and weekly focus minutes
 - Read the institution-wide CR Community board; only Admin-designated Class Representatives can post updates
 
 ### Managers
