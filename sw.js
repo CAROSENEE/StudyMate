@@ -1,5 +1,5 @@
-const CACHE='studymate-v14';
-const FILES=['./','./index.html','./styles.css','./app.js?v=14','./manifest.webmanifest','./assets/brand/smart_studymate_logo_transparent.png','./icons/icon-192.png','./icons/icon-512.png'];
+const CACHE='studymate-v15';
+const FILES=['./','./index.html','./styles.css','./app.js?v=15','./manifest.webmanifest','./assets/brand/smart_studymate_logo_transparent.png','./assets/brand/smart_studymate_logo_login.png','./icons/icon-192.png','./icons/icon-512.png'];
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(FILES))));
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k))))));
 self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;e.respondWith(caches.match(e.request).then(hit=>hit||fetch(e.request).then(r=>{if(r.ok){const copy=r.clone();caches.open(CACHE).then(c=>c.put(e.request,copy))}return r}).catch(()=>caches.match('./index.html'))))});
