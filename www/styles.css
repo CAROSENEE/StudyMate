@@ -37,7 +37,7 @@ button{touch-action:manipulation;-webkit-tap-highlight-color:transparent}input,t
 .tile{flex:1;min-width:46%;text-align:center;cursor:pointer;font-size:13px}.tile span{display:block;font-size:22px}
 
 .login-logo{display:block;width:112px;height:104px;object-fit:contain;margin:0 auto 6px}
-.login-body{justify-content:center;gap:12px;padding-top:max(18px,env(safe-area-inset-top));padding-bottom:max(24px,env(safe-area-inset-bottom))}
+.login-body{justify-content:flex-start;gap:12px;padding-top:max(18px,env(safe-area-inset-top));padding-bottom:max(24px,env(safe-area-inset-bottom))}
 .login-brand{text-align:center;padding:8px 0 2px}
 .login-brand h1{color:var(--t);font-size:28px;letter-spacing:-.7px;margin:2px 0 4px}
 .login-brand small{font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--m)}
