@@ -53,3 +53,5 @@ button{touch-action:manipulation;-webkit-tap-highlight-color:transparent}input,t
 .login-preview .row{flex-wrap:wrap}
 .login-footnote{text-align:center;font-size:11px}
 .field-label{font-size:12px;font-weight:650;color:var(--t)}
+
+.friend-icon-btn{width:32px;height:32px;border:0;border-radius:10px;background:var(--pl);color:var(--p);display:grid;place-items:center;flex:none;cursor:pointer;padding:6px}.friend-icon-btn svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
