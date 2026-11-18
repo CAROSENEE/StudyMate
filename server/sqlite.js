@@ -196,7 +196,10 @@ function requireAuth(req, res, next) {
 }
 
 function requireAdmin(req, res, next) {
-  if (req.user.role !== 'admin') return fail(res, 403, 'Admin access is required.');
+  // The legacy SQLite schema stores the seeded Manager with role="admin"
+  // (and publicUser maps that account to "manager"). Keep that compatibility
+  // while ensuring the Manager cannot call administrator-only endpoints.
+  if (req.user.role !== 'admin' || req.user.email === MANAGER_EMAIL) return fail(res, 403, 'Admin access is required.');
   next();
 }
 function requireManager(req,res,next){if(!['manager','admin'].includes(req.user.role))return fail(res,403,'Manager access is required.');next()}
